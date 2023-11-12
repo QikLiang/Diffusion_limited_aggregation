@@ -30,21 +30,27 @@ struct random_source{
 	}
 };
 
+// a single step of Brownian motion of fixed distance and random direction
 point brownian_step(point pt, double distance, random_source& random){
 	double angle = random(0, 2*pi);
 	return point(std::sin(angle) * distance + pt.get<0>(), std::cos(angle) * distance + pt.get<1>());
 }
 
+// given an aggregate, return a new point that would cluster onto the aggregate
 point attach_point(rtree const& points, double spawn_distance, double particle_size, double tolerance, random_source& random){
+	// spawn a point "from infinity"
 	point new_particle = brownian_step(point{0, 0}, spawn_distance, random);
-	//int i = 0;
+
 	while(true){
-		//std::cout << new_particle.get<0>() << ' ' << new_particle.get<1>() << '\n';
+		// find the nearest point already in the aggregate
 		boost::container::static_vector<point, 1> output;
 		bg::index::query(points, bg::index::nearest(new_particle, 1), std::back_inserter(output));
 		point nearest_point = output.front();
+
+		// make a Brownian step in random direction not surpassing the nearest point
 		double step_size = bg::distance(new_particle, nearest_point) - particle_size + tolerance;
 		point next_point = brownian_step(new_particle, step_size, random);
+
 		if(bg::distance(next_point, nearest_point) <= particle_size + tolerance){
 			return next_point;
 		}
@@ -56,8 +62,6 @@ point attach_point(rtree const& points, double spawn_distance, double particle_s
 			new_particle = next_point;
 		}
 	}
-	//std::cout << points.size() << std::endl;
-	//exit(1);
 }
 
 int main(){
