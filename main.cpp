@@ -9,7 +9,7 @@
 #include <fstream>
 
 constexpr double pi = 3.14159265359;
-constexpr size_t num_particles = 10000;
+constexpr size_t num_particles = 1000000;
 constexpr double particle_diameter = 1.;
 constexpr double touching_tolerance = 1e-4;
 constexpr double spawn_distance = 1e10;
@@ -78,6 +78,6 @@ int main(){
 	std::ofstream output;
 	output.open("output");
 	for(point const& pt : points){
-		output << pt.get<0>() << ' ' << pt.get<1>() << '\n';
+		output << pt.get<0>() << ' ' << pt.get<1>() << std::endl;
 	}
 }
